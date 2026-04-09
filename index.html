@@ -520,7 +520,7 @@
 
 <script type="module">
 import { initializeApp }                          from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getDatabase, ref, set, remove, onValue, off } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+import { getDatabase, ref, set, remove, onValue, off, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
 const FIREBASE_CONFIG = {
@@ -1021,16 +1021,13 @@ document.getElementById('joinCodeInput').addEventListener('keydown', function(e)
   if(e.key==='Enter') document.getElementById('joinFridgeBtn').click();
 });
 
-// ── Dozwolone emaile ──────────────────────────────────────────
-var ALLOWED_EMAILS = [
-  'tkocz34@gmail.com',
-  'krzekot.oeso@gmail.com'
-];
-function isAllowed(email) {
-  return ALLOWED_EMAILS.indexOf((email||'').toLowerCase()) !== -1;
+// ── Auth ──────────────────────────────────────────────────────
+function showAccessDenied() {
+  document.getElementById('loginScreen').classList.remove('visible');
+  document.getElementById('setupScreen').classList.remove('visible');
+  document.getElementById('accessDeniedScreen').classList.add('visible');
 }
 
-// ── Auth ──────────────────────────────────────────────────────
 document.getElementById('googleSignInBtn').addEventListener('click', function() {
   signInWithPopup(auth, googleProvider).catch(function() {
     showToast('Błąd logowania — spróbuj ponownie');
@@ -1051,24 +1048,23 @@ document.getElementById('drawerSignOut').addEventListener('click', function() {
 
 onAuthStateChanged(auth, function(user) {
   if (user) {
-    if (!isAllowed(user.email)) {
+    // Sprawdź dostęp przez Firebase — emaile tylko w regułach bazy, nie w kodzie
+    get(ref(db, 'fridges/ACCESS_CHECK')).then(function() {
       document.getElementById('loginScreen').classList.remove('visible');
-      document.getElementById('setupScreen').classList.remove('visible');
-      document.getElementById('accessDeniedScreen').classList.add('visible');
-      return;
-    }
-    document.getElementById('loginScreen').classList.remove('visible');
-    document.getElementById('accessDeniedScreen').classList.remove('visible');
-    document.getElementById('drawerUserName').textContent = user.displayName || '';
-    document.getElementById('drawerUserEmail').textContent = user.email || '';
-    document.getElementById('drawerSignOutEmail').textContent = user.email || '';
-    var savedCode = localStorage.getItem('fridge_code');
-    if (savedCode) {
-      connectToFridge(savedCode);
-    } else {
-      renderSavedFridges();
-      document.getElementById('setupScreen').classList.add('visible');
-    }
+      document.getElementById('accessDeniedScreen').classList.remove('visible');
+      document.getElementById('drawerUserName').textContent = user.displayName || '';
+      document.getElementById('drawerUserEmail').textContent = user.email || '';
+      document.getElementById('drawerSignOutEmail').textContent = user.email || '';
+      var savedCode = localStorage.getItem('fridge_code');
+      if (savedCode) {
+        connectToFridge(savedCode);
+      } else {
+        renderSavedFridges();
+        document.getElementById('setupScreen').classList.add('visible');
+      }
+    }).catch(function() {
+      showAccessDenied();
+    });
   } else {
     document.getElementById('setupScreen').classList.remove('visible');
     document.getElementById('accessDeniedScreen').classList.remove('visible');
