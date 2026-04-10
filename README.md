@@ -61,8 +61,8 @@ Aplikacja używa trzech warstw ochrony:
 
 ### 2. reCAPTCHA
 
-1. Zarejestruj domenę na https://www.google.com/recaptcha/admin
-2. Wybierz **reCAPTCHA**
+1. Zarejestruj domenę na [google.com/recaptcha/admin](https://www.google.com/recaptcha/admin)
+2. Wybierz **reCAPTCHA v3**
 3. Skopiuj **Site Key** (nie Secret Key)
 
 ### 3. Konfiguracja kodu
