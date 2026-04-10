@@ -522,6 +522,7 @@
 import { initializeApp }                          from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getDatabase, ref, set, remove, onValue, off, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app-check.js";
 
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyDlTyXgebSrTXMubXfa4AuorjKaYEciAkg",
@@ -537,6 +538,10 @@ const app            = initializeApp(FIREBASE_CONFIG);
 const db             = getDatabase(app);
 const auth           = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LdHDrAsAAAAAMz8pR1n_3vGWK-0UJ7VvgIXH4GF'),
+  isTokenAutoRefreshEnabled: true
+});
 
 // Monitor connection status
 onValue(ref(db, '.info/connected'), function(snap) {
